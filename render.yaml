@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 services:
   - type: web
     name: feedback360-backend
@@ -33,3 +34,40 @@ services:
           type: web
           name: feedback360-backend
           property: host
+=======
+services:
+  - type: web
+    name: feedback360-backend
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ADMIN_EMAIL
+        value: admin@empresa.com
+      - key: ADMIN_PASSWORD
+        value: admin123
+
+  - type: web
+    name: feedback360-frontend
+    env: static
+    plan: free
+    buildCommand: cd client && npm install && npm run build
+    staticPublishPath: ./client/build
+    envVars:
+      - key: REACT_APP_API_URL
+        fromService:
+          type: web
+          name: feedback360-backend
+          property: host
+>>>>>>> 3fe575445e2dba262a059926ff165f8a8708665f
