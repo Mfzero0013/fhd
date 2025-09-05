@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Equipes - FeedbackHub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 font-sans">
+    <div class="w-full bg-indigo-800 text-white flex flex-row py-4 px-8 mb-8">
+        <h2 class="text-xl font-bold flex-1"><span class="text-indigo-200">Feedback</span>Hub</h2>
+        <nav class="flex flex-row gap-6 items-center">
+            <a href="/dashboard" class="hover:underline">Dashboard</a>
+            <a href="/teams" class="hover:underline">Equipes</a>
+            <a href="/reports" class="hover:underline">Relatórios</a>
+            <a href="/reminders" class="hover:underline">Lembretes</a>
+            <a href="/settings" class="hover:underline">Configurações</a>
+        </nav>
+    </div>
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-2xl font-bold text-indigo-800 mb-6">Gerenciamento de Equipes</h1>
+        <div class="bg-white rounded-xl shadow-md p-6 mb-8">
+            <form id="addTeamForm" class="flex gap-4 mb-4">
+                <input type="text" id="teamName" name="teamName" placeholder="Nome da Equipe" required class="border px-4 py-2 rounded-lg flex-1">
+                <button type="submit" class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition">Adicionar Equipe</button>
+            </form>
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead>
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nome</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="teamsTable" class="bg-white divide-y divide-gray-200">
+                    <!-- Linhas de equipes serão inseridas aqui via JS -->
+                </tbody>
+            </table>
+        </div>
+        <a href="/" class="text-indigo-600 hover:underline">Voltar ao Dashboard</a>
+    </div>
+    <script>
+        async function fetchTeams() {
+            const res = await fetch('/api/teams');
+            const teams = await res.json();
+            const tbody = document.getElementById('teamsTable');
+            tbody.innerHTML = '';
+            teams.forEach(team => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="px-6 py-4">${team.name}</td>
+                    <td class="px-6 py-4">
+                        <button onclick="editTeam(${team.id}, '${team.name}')" class="text-blue-600 hover:underline mr-4">Editar</button>
+                        <button onclick="deleteTeam(${team.id})" class="text-red-600 hover:underline">Excluir</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+        document.getElementById('addTeamForm').onsubmit = async function(e) {
+            e.preventDefault();
+            const name = document.getElementById('teamName').value;
+            await fetch('/api/teams', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name })
+            });
+            document.getElementById('teamName').value = '';
+            fetchTeams();
+        };
+        async function deleteTeam(id) {
+            await fetch(`/api/teams/${id}`, { method: 'DELETE' });
+            fetchTeams();
+        }
+        function editTeam(id, oldName) {
+            const newName = prompt('Novo nome da equipe:', oldName);
+            if (newName && newName !== oldName) {
+                fetch(`/api/teams/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: newName })
+                }).then(fetchTeams);
+            }
+        }
+        fetchTeams();
+    </script>
+</body>
+</html>

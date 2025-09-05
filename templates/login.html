@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - FeedbackHub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-indigo-50 min-h-screen flex items-center justify-center">
+    <div class="w-full max-w-md bg-white rounded-xl shadow-lg p-8">
+        <div class="flex flex-col items-center mb-6">
+            <i class="fas fa-comments text-indigo-600 text-4xl mb-2"></i>
+            <h1 class="text-2xl font-bold text-indigo-800">Feedback<span class="text-indigo-400">Hub</span></h1>
+            <p class="text-gray-500 mt-2">Sistema de Avaliação Colaborativa</p>
+        </div>
+        <form id="loginForm" class="space-y-6">
+            <div>
+                <label for="username" class="block text-sm font-medium text-gray-700">Usuário</label>
+                <input type="text" id="username" name="username" required class="mt-1 block w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            </div>
+            <div>
+                <label for="password" class="block text-sm font-medium text-gray-700">Senha</label>
+                <input type="password" id="password" name="password" required class="mt-1 block w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            </div>
+            <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded-lg font-semibold hover:bg-indigo-700 transition duration-150">Entrar</button>
+        </form>
+        <div class="flex justify-between mt-4 text-sm">
+            <a href="#" class="text-indigo-600 hover:underline">Esqueci minha senha</a>
+            <a href="#" class="text-indigo-600 hover:underline">Criar conta</a>
+        </div>
+        <div id="loginError" class="text-red-600 text-center mt-4 hidden">Usuário ou senha inválidos.</div>
+    </div>
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const res = await fetch('/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+            if (res.ok) {
+                window.location.href = '/';
+            } else {
+                document.getElementById('loginError').classList.remove('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
