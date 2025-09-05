@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const path = require('path');
 require('dotenv').config();
 
 const { initDatabase } = require('./database/supabase-simple');
@@ -35,6 +36,11 @@ app.use(limiter);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
+// Servir arquivos estáticos do React em produção
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, 'client/build')));
+}
+
 // Rotas
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
@@ -59,10 +65,17 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Rota 404
-app.use('*', (req, res) => {
-  res.status(404).json({ message: 'Rota não encontrada' });
-});
+// Rota para servir o React em produção
+if (process.env.NODE_ENV === 'production') {
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
+  });
+} else {
+  // Rota 404 para desenvolvimento
+  app.use('*', (req, res) => {
+    res.status(404).json({ message: 'Rota não encontrada' });
+  });
+}
 
 // Inicializar banco e servidor
 async function startServer() {

@@ -1,9 +1,9 @@
 services:
   - type: web
-    name: feedback360-backend
+    name: feedback360
     env: node
     plan: free
-    buildCommand: npm install
+    buildCommand: npm run render-postbuild
     startCommand: npm start
     envVars:
       - key: NODE_ENV
@@ -20,16 +20,3 @@ services:
         value: admin@empresa.com
       - key: ADMIN_PASSWORD
         value: admin123
-
-  - type: web
-    name: feedback360-frontend
-    env: static
-    plan: free
-    buildCommand: cd client && npm install && npm run build
-    staticPublishPath: ./client/build
-    envVars:
-      - key: REACT_APP_API_URL
-        fromService:
-          type: web
-          name: feedback360-backend
-          property: host
